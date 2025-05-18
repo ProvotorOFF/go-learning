@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 )
 
 const USDEUR = 0.88
@@ -12,34 +14,40 @@ func main() {
 	from := getCurrency("Ввод исходной валюты", "")
 	base := getBase("Ввод числа")
 	to := getCurrency("Ввод целевой валюты", from)
-	fmt.Printf("%.2f %s в %s - %.4f", base, from, to, calculateRate(base, from, to))
+	res, err := calculateRate(base, from, to)
+	if err == nil {
+		fmt.Printf("%.2f %s в %s - %.4f", base, from, to, res)
+	} else {
+		panic(err)
+	}
+
 }
 
-func calculateRate(base float64, from string, to string) float64 {
+func calculateRate(base float64, from string, to string) (float64, error) {
 	switch from {
 	case "USD":
 		switch to {
 		case "EUR":
-			return base * USDEUR
+			return base * USDEUR, nil
 		case "RUB":
-			return base * USDRUB
+			return base * USDRUB, nil
 		}
 	case "EUR":
 		switch to {
 		case "USD":
-			return base / USDEUR
+			return base / USDEUR, nil
 		case "RUB":
-			return base * EURRUB
+			return base * EURRUB, nil
 		}
 	case "RUB":
 		switch to {
 		case "USD":
-			return base / USDRUB
+			return base / USDRUB, nil
 		case "EUR":
-			return base / EURRUB
+			return base / EURRUB, nil
 		}
 	}
-	return 0.0
+	return 0, errors.New("INCCORRECT_CURRENCIES")
 }
 
 func getCurrency(message string, exludedCurrency string) string {
@@ -59,6 +67,7 @@ func getCurrency(message string, exludedCurrency string) string {
 	for {
 		fmt.Printf("%s (%s): ", message, avalibleCurrencies)
 		fmt.Scanln(&currency)
+		currency = strings.ToUpper(currency)
 		switch {
 		case exludedCurrency != "" && currency == exludedCurrency:
 			fmt.Println("Выберите другую валюту")
