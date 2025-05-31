@@ -10,42 +10,37 @@ const USDEUR = 0.88
 const USDRUB = 80.50
 const EURRUB = USDRUB / USDEUR
 
+var rates = map[string]map[string]float64{
+	"USD": {
+		"EUR": USDEUR,
+		"RUB": USDRUB,
+	},
+	"EUR": {
+		"USD": 1 / USDEUR,
+		"RUB": EURRUB,
+	},
+	"RUB": {
+		"USD": 1 / USDRUB,
+		"EUR": 1 / EURRUB,
+	},
+}
+
 func main() {
 	from := getCurrency("Ввод исходной валюты", "")
 	base := getBase("Ввод числа")
 	to := getCurrency("Ввод целевой валюты", from)
-	res, err := calculateRate(base, from, to)
+	res, err := calculateRate(base, from, to, &rates)
 	if err == nil {
-		fmt.Printf("%.2f %s в %s - %.4f", base, from, to, res)
+		fmt.Printf("%.2f %s в %s - %.4f\n", base, from, to, res)
 	} else {
 		panic(err)
 	}
 
 }
 
-func calculateRate(base float64, from string, to string) (float64, error) {
-	switch from {
-	case "USD":
-		switch to {
-		case "EUR":
-			return base * USDEUR, nil
-		case "RUB":
-			return base * USDRUB, nil
-		}
-	case "EUR":
-		switch to {
-		case "USD":
-			return base / USDEUR, nil
-		case "RUB":
-			return base * EURRUB, nil
-		}
-	case "RUB":
-		switch to {
-		case "USD":
-			return base / USDRUB, nil
-		case "EUR":
-			return base / EURRUB, nil
-		}
+func calculateRate(base float64, from string, to string, rateMap *map[string]map[string]float64) (float64, error) {
+	if rate, ok := (*rateMap)[from][to]; ok {
+		return base * rate, nil
 	}
 	return 0, errors.New("INCCORRECT_CURRENCIES")
 }
