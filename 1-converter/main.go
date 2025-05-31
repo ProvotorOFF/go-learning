@@ -29,17 +29,17 @@ func main() {
 	from := getCurrency("Ввод исходной валюты", "")
 	base := getBase("Ввод числа")
 	to := getCurrency("Ввод целевой валюты", from)
-	res, err := calculateRate(base, from, to)
+	res, err := calculateRate(base, from, to, &rates)
 	if err == nil {
-		fmt.Printf("%.2f %s в %s - %.4f", base, from, to, res)
+		fmt.Printf("%.2f %s в %s - %.4f\n", base, from, to, res)
 	} else {
 		panic(err)
 	}
 
 }
 
-func calculateRate(base float64, from string, to string) (float64, error) {
-	if rate, ok := rates[from][to]; ok {
+func calculateRate(base float64, from string, to string, rateMap *map[string]map[string]float64) (float64, error) {
+	if rate, ok := (*rateMap)[from][to]; ok {
 		return base * rate, nil
 	}
 	return 0, errors.New("INCCORRECT_CURRENCIES")
