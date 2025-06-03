@@ -10,7 +10,11 @@ import (
 
 func main() {
 	operation := getOperation()
-	numbers := getNumbers()
+	numbers, err := getNumbers()
+	if err != nil {
+		fmt.Printf("Ошибка валидации чисел: %s", err)
+		return
+	}
 	switch operation {
 	case "SUM":
 		fmt.Println("Сумма:", sum(numbers))
@@ -35,7 +39,7 @@ func getOperation() string {
 	}
 }
 
-func getNumbers() []int {
+func getNumbers() ([]int, error) {
 	var input string
 	var response []int
 
@@ -47,11 +51,11 @@ func getNumbers() []int {
 		num, err := strconv.Atoi(number)
 		if err != nil {
 			fmt.Printf("Не удалось преобразовать %s в число\n", number)
-			continue
+			return []int{}, err
 		}
 		response = append(response, num)
 	}
-	return response
+	return response, nil
 }
 
 func validateOperation(operation string) (string, error) {
