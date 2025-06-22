@@ -1,29 +1,40 @@
 package bins
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
+	Id        string    `json:"id"`
+	Private   bool      `json:"private"`
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
 }
 
 func NewBin(id string, private bool, name string) Bin {
 	return Bin{
-		id:        id,
-		private:   private,
-		createdAt: time.Now(),
-		name:      name,
+		Id:        id,
+		Private:   private,
+		CreatedAt: time.Now(),
+		Name:      name,
 	}
 }
 
 type BinList struct {
-	bins []Bin
+	Bins []Bin
 }
 
 func NewBinList(bins []Bin) BinList {
 	return BinList{
-		bins: bins,
+		Bins: bins,
 	}
+}
+
+func (binList *BinList) ToBytes() ([]byte, error) {
+	file, err := json.Marshal(binList)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }

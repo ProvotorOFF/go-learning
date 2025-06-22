@@ -1,7 +1,14 @@
 package file
 
-import "fmt"
+import (
+	"fmt"
+	"path/filepath"
+	"strings"
+)
 
-func init() {
-	fmt.Print("This is file")
+func CheckIsJSON(path string) (bool, error) {
+	if strings.ToLower(filepath.Ext(path)) != ".json" {
+		return false, fmt.Errorf("not_json")
+	}
+	return true, nil
 }
