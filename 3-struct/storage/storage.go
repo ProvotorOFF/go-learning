@@ -23,15 +23,15 @@ func SaveBins(binList bins.BinList) (bool, error) {
 	return true, nil
 }
 
-func ReadBins() (bins.BinList, error) {
+func ReadBins() (*bins.BinList, error) {
 	data, err := os.ReadFile("data.json")
 	if err != nil {
-		return bins.NewBinList([]bins.Bin{}), nil
+		return nil, err
 	}
 	var binList bins.BinList
 	err = json.Unmarshal(data, &binList)
 	if err != nil {
-		return bins.NewBinList([]bins.Bin{}), nil
+		return nil, err
 	}
-	return binList, nil
+	return &binList, nil
 }

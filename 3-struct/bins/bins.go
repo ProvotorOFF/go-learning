@@ -25,8 +25,8 @@ type BinList struct {
 	Bins []Bin
 }
 
-func NewBinList(bins []Bin) BinList {
-	return BinList{
+func NewBinList(bins []Bin) *BinList {
+	return &BinList{
 		Bins: bins,
 	}
 }
