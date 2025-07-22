@@ -8,6 +8,18 @@ import (
 	"strings"
 )
 
+var operationType = map[string]func(...int){
+	"SUM": func(nums ...int) {
+		fmt.Println("Сумма:", sum(nums...))
+	},
+	"AVG": func(nums ...int) {
+		fmt.Println("Среднее:", avg(nums...))
+	},
+	"MED": func(nums ...int) {
+		fmt.Println("Медиана:", med(nums...))
+	},
+}
+
 func main() {
 	operation := getOperation()
 	numbers, err := getNumbers()
@@ -15,14 +27,7 @@ func main() {
 		fmt.Printf("Ошибка валидации чисел: %s", err)
 		return
 	}
-	switch operation {
-	case "SUM":
-		fmt.Println("Сумма:", sum(numbers))
-	case "AVG":
-		fmt.Println("Среднее:", avg(numbers))
-	case "MED":
-		fmt.Println("Медиана:", med(numbers))
-	}
+	operationType[operation](numbers...)
 }
 
 func getOperation() string {
@@ -68,7 +73,7 @@ func validateOperation(operation string) (string, error) {
 	return "", errors.New("INCORRECT_OPERATION")
 }
 
-func sum(numbers []int) int {
+func sum(numbers ...int) int {
 	total := 0
 	for _, val := range numbers {
 		total += val
@@ -76,14 +81,14 @@ func sum(numbers []int) int {
 	return total
 }
 
-func avg(numbers []int) float64 {
+func avg(numbers ...int) float64 {
 	if len(numbers) == 0 {
 		return 0
 	}
-	return float64(sum(numbers)) / float64(len(numbers))
+	return float64(sum(numbers...)) / float64(len(numbers))
 }
 
-func med(numbers []int) float64 {
+func med(numbers ...int) float64 {
 	if len(numbers) == 0 {
 		return 0
 	}
