@@ -8,6 +8,12 @@ import (
 
 var binList bins.BinList
 var isLoaded bool
+var fileStorage *storage.Storage = storage.NewStorage()
+
+type StorageService interface {
+	SaveBins(list storage.Serializable) (bool, error)
+	ReadBins() (*bins.BinList, error)
+}
 
 func main() {
 	for {
@@ -20,7 +26,7 @@ func main() {
 		})
 		switch opt {
 		case 1:
-			loadBinList()
+			loadBinList(fileStorage)
 		case 2:
 			bin := inputBinData()
 			fmt.Println("Бин успешно создан")
@@ -28,14 +34,14 @@ func main() {
 				binList.Bins = append(binList.Bins, bin)
 			} else {
 				fmt.Println("Бинлист не прочтен, читаем автоматически")
-				loadBinList()
+				loadBinList(fileStorage)
 				if isLoaded {
 					binList.Bins = append(binList.Bins, bin)
 				}
 			}
 		case 3:
 			if isLoaded {
-				storage.SaveBins(&binList)
+				fileStorage.SaveBins(&binList)
 			} else {
 				fmt.Println("Бинлист не загружен, нечего загружать")
 			}
@@ -87,7 +93,7 @@ func readBool(message string) bool {
 	}
 }
 
-func loadBinList() {
+func loadBinList(storage StorageService) {
 	storageBins, err := storage.ReadBins()
 	if err != nil {
 		fmt.Println("Бинлист не прочтен")

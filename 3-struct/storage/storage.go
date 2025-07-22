@@ -10,7 +10,15 @@ type Serializable interface {
 	ToBytes() ([]byte, error)
 }
 
-func SaveBins(list Serializable) (bool, error) {
+type Storage struct {
+}
+
+func NewStorage() *Storage {
+	var storage Storage
+	return &storage
+}
+
+func (storage *Storage) SaveBins(list Serializable) (bool, error) {
 	content, err := list.ToBytes()
 	if err != nil {
 		return false, err
@@ -27,7 +35,7 @@ func SaveBins(list Serializable) (bool, error) {
 	return true, nil
 }
 
-func ReadBins() (*bins.BinList, error) {
+func (storage *Storage) ReadBins() (*bins.BinList, error) {
 	data, err := os.ReadFile("data.json")
 	if err != nil {
 		if os.IsNotExist(err) {
