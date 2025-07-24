@@ -6,8 +6,20 @@ import (
 	"os"
 )
 
-func SaveBins(binList bins.BinList) (bool, error) {
-	content, err := binList.ToBytes()
+type Serializable interface {
+	ToBytes() ([]byte, error)
+}
+
+type Storage struct {
+}
+
+func NewStorage() *Storage {
+	var storage Storage
+	return &storage
+}
+
+func (storage *Storage) SaveBins(list Serializable) (bool, error) {
+	content, err := list.ToBytes()
 	if err != nil {
 		return false, err
 	}
@@ -23,9 +35,12 @@ func SaveBins(binList bins.BinList) (bool, error) {
 	return true, nil
 }
 
-func ReadBins() (*bins.BinList, error) {
+func (storage *Storage) ReadBins() (*bins.BinList, error) {
 	data, err := os.ReadFile("data.json")
 	if err != nil {
+		if os.IsNotExist(err) {
+			return &bins.BinList{Bins: []bins.Bin{}}, nil
+		}
 		return nil, err
 	}
 	var binList bins.BinList
