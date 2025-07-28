@@ -27,7 +27,11 @@ func main() {
 		fmt.Printf("Ошибка валидации чисел: %s", err)
 		return
 	}
-	operationType[operation](numbers...)
+	if opFunc, ok := operationType[operation]; ok {
+		opFunc(numbers...)
+	} else {
+		fmt.Printf("Операция %s не поддерживается\n", operation)
+	}
 }
 
 func getOperation() string {
