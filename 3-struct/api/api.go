@@ -1,7 +1,11 @@
 package api
 
-import "fmt"
+import (
+	"3-struct/app/config"
+	"fmt"
+)
 
 func init() {
-	fmt.Print("This is api")
+	key := config.GetConfig().Key
+	fmt.Print(key)
 }
