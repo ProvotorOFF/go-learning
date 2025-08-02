@@ -16,9 +16,9 @@ func GetConfig() *Config {
 	if err != nil {
 		fmt.Println(".env не загружен. Будут использованы переменные окружения")
 	}
-	key := os.Getenv("KEY")
-	if key == "" {
-		panic("Приложение невозможно запустить без ключа")
+	key, ok := os.LookupEnv("KEY")
+	if !ok {
+		fmt.Println("Нет KEY - дальнейшее выполнение может завершиться с ошибками!")
 	}
 	return &Config{key}
 }
