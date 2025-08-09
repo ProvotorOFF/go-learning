@@ -16,49 +16,25 @@ func Init() {
 }
 
 func CreateBin(fileName, name string) error {
-	data, err := file.ReadFile(fileName)
-	if err != nil {
-		return err
-	}
+	//TODO добить бины
+	// var fileStorage *storage.Storage = storage.NewStorage()
+	// bin, err := file.ReadFile(fileName)
+	// storageBins, err := fileStorage.ReadBins()
+	// fmt.Println("Бин успешно создан")
 
-	req, err := http.NewRequest("post", url+"/b", bytes.NewBuffer(data))
-	if err != nil {
-		return err
-	}
-
-	setHeaders(req)
-	req.Header.Set("X-Bin-Name", name)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
+	return sendRequest("post", url+"/b/", fileName, name)
 }
 
 func UpdateBin(fileName, id string) error {
-	data, err := file.ReadFile(fileName)
-	if err != nil {
-		return err
-	}
+	return sendRequest("put", url+"/b/"+id, fileName, "")
+}
 
-	req, err := http.NewRequest("put", url+"/b/"+id, bytes.NewBuffer(data))
-	if err != nil {
-		return err
-	}
+func DeleteBin(id string) error {
+	return sendRequest("delete", url+"/b/"+id, "", "")
+}
 
-	setHeaders(req)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	defer resp.Body.Close()
-	return nil
+func GetBin(id string) error {
+	return sendRequest("get", url+"/b/"+id, "", "")
 }
 
 func setHeaders(req *http.Request, name string) error {
@@ -67,18 +43,40 @@ func setHeaders(req *http.Request, name string) error {
 	if name != "" {
 		req.Header.Set("X-Bin-Name", name)
 	}
+
+	return nil
 }
 
-func sendRequest(method, url, fileName, name string) {
-	data, err := file.ReadFile(fileName)
-	if err != nil {
-		return err
+func sendRequest(method, url, fileName, name string) error {
+	var data []byte
+	var err error
+	var req *http.Request
+
+	if fileName != "" {
+		data, err = file.ReadFile(fileName)
+		if err != nil {
+			return err
+		}
 	}
 
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+	if data != nil {
+		req, err = http.NewRequest(method, url, bytes.NewBuffer(data))
+	} else {
+		req, err = http.NewRequest(method, url, nil)
+	}
+
 	if err != nil {
 		return err
 	}
 
 	setHeaders(req, name)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	return nil
 }

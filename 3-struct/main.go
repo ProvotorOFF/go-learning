@@ -30,13 +30,13 @@ func main() {
 	case *isCreate:
 		api.CreateBin(*file, *name)
 	case *isUpdate:
-		api.Init()
+		api.UpdateBin(*file, *id)
 	case *isDelete:
-		api.Init()
+		api.DeleteBin(*id)
 	case *isGet:
-		api.Init()
+		api.GetBin(*id)
 	case *isList:
-		api.Init()
+		loadBinList(fileStorage)
 	default:
 		for {
 			opt := getMenu([]string{
