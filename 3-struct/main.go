@@ -1,8 +1,10 @@
 package main
 
 import (
+	"3-struct/app/api"
 	"3-struct/app/bins"
 	"3-struct/app/storage"
+	"flag"
 	"fmt"
 )
 
@@ -16,39 +18,60 @@ type StorageService interface {
 }
 
 func main() {
-	for {
-		opt := getMenu([]string{
-			"Загрузить бины из хранилища",
-			"Добавить бин",
-			"Сохранить бины",
-			"Остановить приложение",
-			"Выберите пункт меню: ",
-		})
-		switch opt {
-		case 1:
-			loadBinList(fileStorage)
-		case 2:
-			bin := inputBinData()
-			fmt.Println("Бин успешно создан")
-			if isLoaded {
-				binList.Bins = append(binList.Bins, bin)
-			} else {
-				fmt.Println("Бинлист не прочтен, читаем автоматически")
+	isCreate := flag.Bool("create", false, "Создает новый bin из файла")
+	isUpdate := flag.Bool("update", false, "Обновляет bin из файла по id")
+	isDelete := flag.Bool("delete", false, "Удаляет bin по id")
+	isGet := flag.Bool("get", false, "Получение Bin по id")
+	isList := flag.Bool("list", false, "Получение Bin по id")
+	file := flag.String("file", "file.json", "Файл с бином")
+	name := flag.String("name", "bin", "Название bin")
+	id := flag.String("id", "", "Идентификатор bin")
+	switch {
+	case *isCreate:
+		api.CreateBin(*file, *name)
+	case *isUpdate:
+		api.Init()
+	case *isDelete:
+		api.Init()
+	case *isGet:
+		api.Init()
+	case *isList:
+		api.Init()
+	default:
+		for {
+			opt := getMenu([]string{
+				"Загрузить бины из хранилища",
+				"Добавить бин",
+				"Сохранить бины",
+				"Остановить приложение",
+				"Выберите пункт меню: ",
+			})
+			switch opt {
+			case 1:
 				loadBinList(fileStorage)
+			case 2:
+				bin := inputBinData()
+				fmt.Println("Бин успешно создан")
 				if isLoaded {
 					binList.Bins = append(binList.Bins, bin)
+				} else {
+					fmt.Println("Бинлист не прочтен, читаем автоматически")
+					loadBinList(fileStorage)
+					if isLoaded {
+						binList.Bins = append(binList.Bins, bin)
+					}
 				}
+			case 3:
+				if isLoaded {
+					fileStorage.SaveBins(&binList)
+				} else {
+					fmt.Println("Бинлист не загружен, нечего загружать")
+				}
+			case 4:
+				return
+			default:
+				fmt.Println("Неизвестный пункт меню")
 			}
-		case 3:
-			if isLoaded {
-				fileStorage.SaveBins(&binList)
-			} else {
-				fmt.Println("Бинлист не загружен, нечего загружать")
-			}
-		case 4:
-			return
-		default:
-			fmt.Println("Неизвестный пункт меню")
 		}
 	}
 }
