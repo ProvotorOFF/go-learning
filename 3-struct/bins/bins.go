@@ -10,16 +10,14 @@ type Bin struct {
 	Private   bool      `json:"private"`
 	CreatedAt time.Time `json:"created_at"`
 	Name      string    `json:"name"`
-	Data      string    `json:"data"`
 }
 
-func NewBin(id string, private bool, name string, data string) Bin {
+func NewBin(id string, private bool, name string) Bin {
 	return Bin{
 		Id:        id,
 		Private:   private,
 		CreatedAt: time.Now(),
 		Name:      name,
-		Data:      data,
 	}
 }
 

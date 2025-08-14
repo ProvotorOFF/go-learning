@@ -24,18 +24,18 @@ func main() {
 	isGet := flag.Bool("get", false, "Получение Bin по id")
 	isList := flag.Bool("list", false, "Получение Bin по id")
 	file := flag.String("file", "file.json", "Файл с бином")
-	name := flag.String("name", "bin", "Название bin")
+	name := flag.String("name", "binName", "Название bin")
 	id := flag.String("id", "", "Идентификатор bin")
 
 	flag.Parse()
 
 	switch {
 	case *isCreate:
-		api.CreateBin(*file, *name)
+		api.CreateBin(*file, *name, fileStorage)
 	case *isUpdate:
 		api.UpdateBin(*file, *id)
 	case *isDelete:
-		api.DeleteBin(*id)
+		api.DeleteBin(*id, fileStorage)
 	case *isGet:
 		api.GetBin(*id)
 	case *isList:
@@ -52,6 +52,6 @@ func loadBinList(storage StorageService) {
 	} else {
 		isLoaded = true
 		binList = *storageBins
-		fmt.Println("Бинлист загружен")
+		fmt.Println(binList)
 	}
 }
