@@ -4,36 +4,34 @@ import (
 	"3-struct/app/config"
 	"3-struct/app/file"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
 var url string = "https://api.jsonbin.io/v3"
 
-func Init() {
-	key := config.GetConfig().Key
-	fmt.Print(key)
+func CreateBin(fileName, name string) ([]byte, error) {
+	var result any
+	data, err := sendRequest("post", url+"/b/", fileName, name)
+	if err != nil {
+		return nil, err
+	}
+	json.Unmarshal(data, &result)
+	fmt.Println(result)
+	return data, nil
 }
 
-func CreateBin(fileName, name string) error {
-	//TODO добить бины
-	// var fileStorage *storage.Storage = storage.NewStorage()
-	// bin, err := file.ReadFile(fileName)
-	// storageBins, err := fileStorage.ReadBins()
-	// fmt.Println("Бин успешно создан")
-
-	return sendRequest("post", url+"/b/", fileName, name)
-}
-
-func UpdateBin(fileName, id string) error {
+func UpdateBin(fileName, id string) ([]byte, error) {
 	return sendRequest("put", url+"/b/"+id, fileName, "")
 }
 
-func DeleteBin(id string) error {
+func DeleteBin(id string) ([]byte, error) {
 	return sendRequest("delete", url+"/b/"+id, "", "")
 }
 
-func GetBin(id string) error {
+func GetBin(id string) ([]byte, error) {
 	return sendRequest("get", url+"/b/"+id, "", "")
 }
 
@@ -47,7 +45,7 @@ func setHeaders(req *http.Request, name string) error {
 	return nil
 }
 
-func sendRequest(method, url, fileName, name string) error {
+func sendRequest(method, url, fileName, name string) ([]byte, error) {
 	var data []byte
 	var err error
 	var req *http.Request
@@ -55,7 +53,7 @@ func sendRequest(method, url, fileName, name string) error {
 	if fileName != "" {
 		data, err = file.ReadFile(fileName)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -66,7 +64,7 @@ func sendRequest(method, url, fileName, name string) error {
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	setHeaders(req, name)
@@ -74,9 +72,20 @@ func sendRequest(method, url, fileName, name string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
-	return nil
+
+	respData, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return respData, fmt.Errorf("ошибка запроса (%d): %s", resp.StatusCode, string(respData))
+	}
+
+	return respData, nil
 }
