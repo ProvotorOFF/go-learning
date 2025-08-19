@@ -7,6 +7,7 @@ import (
 	"3-struct/app/storage"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,6 +18,11 @@ var url string = "https://api.jsonbin.io/v3"
 type StorageService interface {
 	SaveBins(list storage.Serializable) (bool, error)
 	ReadBins() (*bins.BinList, error)
+}
+
+var Errors = map[string]error{
+	"storage": errors.New("STORAGE_ERROR"),
+	"huynya":  errors.New("HUYNYA_ERROR"),
 }
 
 func CreateBin(fileName, name string, storageService StorageService) ([]byte, error) {
@@ -43,7 +49,10 @@ func CreateBin(fileName, name string, storageService StorageService) ([]byte, er
 		result.Metadata.ID, result.Metadata.Private, result.Metadata.Name,
 	)
 	binList.Bins = append(binList.Bins, newBin)
-	storageService.SaveBins(binList)
+	_, err = storageService.SaveBins(binList)
+	if err != nil {
+		return nil, Errors["storage"]
+	}
 	return data, nil
 }
 
