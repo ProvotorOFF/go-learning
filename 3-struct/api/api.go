@@ -21,8 +21,9 @@ type StorageService interface {
 }
 
 var Errors = map[string]error{
-	"storage": errors.New("STORAGE_ERROR"),
-	"huynya":  errors.New("HUYNYA_ERROR"),
+	"storage":      errors.New("STORAGE_ERROR"),
+	"file":         errors.New("FILE_ERROR"),
+	"bad_response": errors.New("BAD_RESPONSE"),
 }
 
 func CreateBin(fileName, name string, storageService StorageService) ([]byte, error) {
@@ -116,7 +117,7 @@ func sendRequest(method, url, fileName, name string) ([]byte, error) {
 	if fileName != "" {
 		data, err = file.ReadFile(fileName)
 		if err != nil {
-			return nil, err
+			return nil, Errors["file"]
 		}
 	}
 
@@ -147,7 +148,7 @@ func sendRequest(method, url, fileName, name string) ([]byte, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return respData, fmt.Errorf("ошибка запроса (%d): %s", resp.StatusCode, string(respData))
+		return respData, Errors["bad_response"]
 	}
 
 	return respData, nil
