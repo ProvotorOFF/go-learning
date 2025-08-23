@@ -22,18 +22,10 @@ type StorageService interface {
 
 var Errors = map[string]error{
 	"storage":      errors.New("STORAGE_ERROR"),
-	"file":         errors.New("FILE_ERROR"),
 	"bad_response": errors.New("BAD_RESPONSE"),
 }
 
 func CreateBin(fileName, name string, storageService StorageService) ([]byte, error) {
-	var result struct {
-		Metadata struct {
-			ID      string `json:"id"`
-			Name    string `json:"name"`
-			Private bool   `json:"private"`
-		}
-	}
 	data, err := sendRequest("POST", url+"/b/", fileName, name)
 	if err != nil {
 		return nil, err
