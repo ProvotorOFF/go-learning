@@ -26,6 +26,13 @@ var Errors = map[string]error{
 }
 
 func CreateBin(fileName, name string, storageService StorageService) ([]byte, error) {
+	var result struct {
+		Metadata struct {
+			ID      string `json:"id"`
+			Name    string `json:"name"`
+			Private bool   `json:"private"`
+		}
+	}
 	data, err := sendRequest("POST", url+"/b/", fileName, name)
 	if err != nil {
 		return nil, err
