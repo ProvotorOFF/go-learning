@@ -7,6 +7,7 @@ import (
 	"3-struct/app/storage"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,6 +18,11 @@ var url string = "https://api.jsonbin.io/v3"
 type StorageService interface {
 	SaveBins(list storage.Serializable) (bool, error)
 	ReadBins() (*bins.BinList, error)
+}
+
+var Errors = map[string]error{
+	"storage":      errors.New("STORAGE_ERROR"),
+	"bad_response": errors.New("BAD_RESPONSE"),
 }
 
 func CreateBin(fileName, name string, storageService StorageService) ([]byte, error) {
@@ -43,7 +49,10 @@ func CreateBin(fileName, name string, storageService StorageService) ([]byte, er
 		result.Metadata.ID, result.Metadata.Private, result.Metadata.Name,
 	)
 	binList.Bins = append(binList.Bins, newBin)
-	storageService.SaveBins(binList)
+	_, err = storageService.SaveBins(binList)
+	if err != nil {
+		return nil, Errors["storage"]
+	}
 	return data, nil
 }
 
@@ -107,7 +116,7 @@ func sendRequest(method, url, fileName, name string) ([]byte, error) {
 	if fileName != "" {
 		data, err = file.ReadFile(fileName)
 		if err != nil {
-			return nil, err
+			return nil, Errors["file"]
 		}
 	}
 
@@ -138,7 +147,7 @@ func sendRequest(method, url, fileName, name string) ([]byte, error) {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return respData, fmt.Errorf("ошибка запроса (%d): %s", resp.StatusCode, string(respData))
+		return respData, Errors["bad_response"]
 	}
 
 	return respData, nil
