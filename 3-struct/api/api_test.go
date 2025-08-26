@@ -5,9 +5,11 @@ import (
 	"3-struct/app/bins"
 	"3-struct/app/storage"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var fixtures = map[string]string{
@@ -51,41 +53,27 @@ func TestCreateBin(t *testing.T) {
 
 	data, err := api.CreateBin(fixtures["create"], "testBin", fakeStorage)
 
-	if err != nil {
-		t.Errorf("Возникла ошибка %v", err)
-	}
-
-	if len(data) == 0 {
-		t.Errorf("Не пришли данные")
-	}
-
-	if len(fakeStorage.BinList.Bins) != 1 {
-		t.Errorf("В хранилище должен быть 1 бин, фактически - %v", len(fakeStorage.BinList.Bins))
-	}
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+	require.Len(t, fakeStorage.BinList.Bins, 1)
 
 	bin := fakeStorage.BinList.Bins[0]
 
-	if bin.Name != "testBin" {
-		t.Errorf("Ожидаемое имя testBin, фактическое %v", bin.Name)
-	}
+	assert.Equal(t, "testBin", bin.Name)
 }
 
 func TestCreateBinBadStorage(t *testing.T) {
 	fakeStorage := &BrokenStorage{}
 	_, err := api.CreateBin(fixtures["create"], "testBin", fakeStorage)
 
-	if !errors.Is(err, api.Errors["storage"]) {
-		t.Errorf("Ожидаемая ошибка %v, фактическая - %v", api.Errors["storage"], err)
-	}
+	assert.ErrorIs(t, err, api.Errors["storage"])
 }
 
 func TestCreateBinBadFile(t *testing.T) {
 	fakeStorage := &BrokenStorage{}
 	_, err := api.CreateBin("broken.txt", "testBin", fakeStorage)
 
-	if !errors.Is(err, api.Errors["file"]) {
-		t.Errorf("Ожидаемая ошибка %v, фактическая - %v", api.Errors["storage"], err)
-	}
+	assert.ErrorIs(t, err, api.Errors["file"])
 }
 
 func TestUpdateBin(t *testing.T) {
@@ -95,46 +83,36 @@ func TestUpdateBin(t *testing.T) {
 	bin := fakeStorage.BinList.Bins[0]
 
 	data, err := api.UpdateBin(fixtures["update"], bin.Id)
-	if err != nil {
-		t.Errorf("Возникла ошибка %v", err)
-	}
 
-	if len(data) == 0 {
-		t.Errorf("Не пришли данные")
-	}
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
 
 	var parsed map[string]any
 	err = json.Unmarshal(data, &parsed)
-	if err != nil {
-		t.Fatalf("Ошибка при разборе JSON: %v", err)
-	}
+
+	require.NoError(t, err)
 
 	record, ok := parsed["record"].(map[string]any)
 
-	if !ok {
-		t.Fatalf("В ответе нет поля 'record'")
-	}
-	if val, ok := record["test"]; !ok {
-		t.Errorf("В record нет поля 'test'")
-	} else if v, ok := val.(float64); !ok || v != 1 {
-		t.Errorf("Ожидаем test = 1, фактически %v", val)
-	}
+	require.True(t, ok)
+	val, ok := record["test"]
+
+	require.True(t, ok)
+	v, ok := val.(float64)
+	require.True(t, ok)
+	require.Equal(t, 1.0, v)
 }
 
 func TestUpdateBinIncorrectId(t *testing.T) {
 	_, err := api.UpdateBin(fixtures["update"], "incorrect_id")
 
-	if err != api.Errors["bad_response"] {
-		t.Errorf("Ожидаемая ошибка %v, фактическая - %v", api.Errors["bad_response"], err)
-	}
+	assert.ErrorIs(t, err, api.Errors["bad_response"])
 }
 
 func TestUpdateBinBadFile(t *testing.T) {
 	_, err := api.UpdateBin("broken.txt", "incorrect_id")
 
-	if err != api.Errors["file"] {
-		t.Errorf("Ожидаемая ошибка %v, фактическая - %v", api.Errors["file"], err)
-	}
+	assert.ErrorIs(t, err, api.Errors["file"])
 }
 
 func TestGetBin(t *testing.T) {
@@ -144,21 +122,15 @@ func TestGetBin(t *testing.T) {
 	bin := fakeStorage.BinList.Bins[0]
 
 	data, err := api.GetBin(bin.Id)
-	if err != nil {
-		t.Errorf("Возникла ошибка %v", err)
-	}
 
-	if len(data) == 0 {
-		t.Errorf("Не пришли данные")
-	}
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
 }
 
 func TestGetBinIncorrectId(t *testing.T) {
 	_, err := api.GetBin("no_id")
 
-	if err != api.Errors["bad_response"] {
-		t.Errorf("Ожидаемая ошибка %v, фактическая - %v", api.Errors["bad_response"], err)
-	}
+	assert.ErrorIs(t, err, api.Errors["bad_response"])
 }
 
 func TestDeleteBin(t *testing.T) {
@@ -168,18 +140,10 @@ func TestDeleteBin(t *testing.T) {
 	bin := fakeStorage.BinList.Bins[0]
 
 	data, err := api.DeleteBin(bin.Id, fakeStorage)
-	if err != nil {
-		t.Errorf("Возникла ошибка %v", err)
-	}
 
-	if len(data) == 0 {
-		t.Errorf("Не пришли данные")
-	}
-
-	if len(fakeStorage.BinList.Bins) != 0 {
-		t.Errorf("В хранилище должен быть 0 бин, фактически - %v", len(fakeStorage.BinList.Bins))
-	}
-
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+	require.Empty(t, fakeStorage.BinList.Bins)
 }
 
 func TestDeleteBinIncorrectId(t *testing.T) {
@@ -187,7 +151,5 @@ func TestDeleteBinIncorrectId(t *testing.T) {
 
 	_, err := api.DeleteBin("no_id", fakeStorage)
 
-	if err != api.Errors["bad_response"] {
-		t.Errorf("Ожидаемая ошибка %v, фактическая - %v", api.Errors["bad_response"], err)
-	}
+	assert.ErrorIs(t, err, api.Errors["bad_response"])
 }
