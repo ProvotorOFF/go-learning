@@ -22,7 +22,6 @@ type StorageService interface {
 
 var Errors = map[string]error{
 	"storage":      errors.New("STORAGE_ERROR"),
-	"file":         errors.New("FILE_ERROR"),
 	"bad_response": errors.New("BAD_RESPONSE"),
 }
 
