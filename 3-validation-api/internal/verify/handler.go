@@ -1,8 +1,10 @@
 package verify
 
 import (
+	"fmt"
 	"net/http"
 	"validation-api/configs"
+	"validation-api/pkg/req"
 )
 
 type verifyHandler struct {
@@ -18,8 +20,12 @@ func NewVerifyHandler(router *http.ServeMux, conf *configs.Config) {
 }
 
 func (handler *verifyHandler) send() http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-
+	return func(w http.ResponseWriter, request *http.Request) {
+		body, err := req.HandleBody[SendMailRequest](&w, request)
+		if err != nil {
+			return
+		}
+		fmt.Print(body)
 	}
 }
 
