@@ -3,6 +3,7 @@ package verify
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand/v2"
 	"net/http"
 	"net/smtp"
@@ -64,24 +65,28 @@ func (handler *verifyHandler) send() http.HandlerFunc {
 
 func (handler *verifyHandler) verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		hash := req.URL.Path[len("/verify/"):]
+		hash := req.PathValue("hash")
 		data := map[string]string{}
 		content, err := os.ReadFile("verify.json")
 
 		if err != nil {
+			log.Printf("Ошибка чтения verify.json: %v", err)
 			res.Json(w, ErrorResponse{
 				Message: "Не удалось найти код верификации",
 			}, 404)
+			return
 		}
 		json.Unmarshal(content, &data)
 
 		if data["hash"] == hash {
-			os.Remove("verify.json")
 			res.Json(w, "", 200)
 		} else {
+			log.Printf("Проверка hash: %s, ожидается: %s", hash, data["hash"])
 			res.Json(w, ErrorResponse{
 				Message: "Некорректный код подтверждения",
 			}, 400)
 		}
+
+		os.Remove("verify.json")
 	}
 }
