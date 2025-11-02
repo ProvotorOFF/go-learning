@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"order-api-start/configs"
 
 	"gorm.io/driver/postgres"
@@ -11,10 +12,10 @@ type Db struct {
 	*gorm.DB
 }
 
-func NewDb(conf *configs.Config) *Db {
+func NewDb(conf *configs.Config) (*Db, error) {
 	db, err := gorm.Open(postgres.Open(conf.DSN), &gorm.Config{})
 	if err != nil {
-		panic("No connection to database")
+		return nil, errors.New("no connection to database")
 	}
-	return &Db{db}
+	return &Db{db}, nil
 }
