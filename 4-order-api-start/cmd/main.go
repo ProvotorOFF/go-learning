@@ -5,6 +5,7 @@ import (
 	"order-api-start/configs"
 	"order-api-start/internal/product"
 	"order-api-start/pkg/db"
+	"order-api-start/pkg/middleware"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: router,
+		Handler: middleware.Logger(router),
 	}
 
 	server.ListenAndServe()
