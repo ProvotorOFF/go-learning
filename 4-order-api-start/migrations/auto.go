@@ -3,6 +3,8 @@ package main
 import (
 	"order-api-start/configs"
 	"order-api-start/internal/product"
+	"order-api-start/internal/session"
+	"os/user"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,4 +19,6 @@ func main() {
 	}
 
 	db.AutoMigrate(&product.Product{})
+	db.AutoMigrate(&user.User{})
+	db.AutoMigrate(&session.Session{})
 }
