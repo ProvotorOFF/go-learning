@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"order-api-start/internal/session"
 	"order-api-start/internal/user"
 	"order-api-start/pkg/req"
 	"order-api-start/pkg/res"
@@ -23,7 +24,8 @@ func NewAuthHandler(router *http.ServeMux, deps Deps) {
 		service: deps.Service,
 	}
 
-	router.HandleFunc("POST auth/login", handler.login())
+	router.HandleFunc("POST /auth/login", handler.login())
+	router.HandleFunc("POST /auth/login/verify", handler.loginVerify())
 }
 
 func (handler *AuthHandler) login() http.HandlerFunc {
@@ -43,6 +45,27 @@ func (handler *AuthHandler) login() http.HandlerFunc {
 
 		res.Json(w, LoginResponse{
 			SID: currentSession.SID,
+		}, 200)
+	}
+}
+
+func (handler *AuthHandler) loginVerify() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session, err := req.HandleBody[session.Session](&w, r)
+
+		if err != nil {
+			return
+		}
+
+		token, err := handler.service.Verify(session)
+
+		if err != nil {
+			res.Json(w, err.Error(), 500)
+			return
+		}
+
+		res.Json(w, LoginVerifiedResponse{
+			Token: token,
 		}, 200)
 	}
 }

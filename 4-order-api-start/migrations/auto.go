@@ -4,7 +4,7 @@ import (
 	"order-api-start/configs"
 	"order-api-start/internal/product"
 	"order-api-start/internal/session"
-	"os/user"
+	"order-api-start/internal/user"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
