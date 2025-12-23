@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	DSN string
+	DSN    string
+	Secret string
 }
 
 func LoadConfig() *Config {
@@ -17,6 +18,7 @@ func LoadConfig() *Config {
 		log.Print("Cannot load .env")
 	}
 	return &Config{
-		DSN: os.Getenv("DSN"),
+		DSN:    os.Getenv("DSN"),
+		Secret: os.Getenv("SECRET"),
 	}
 }
