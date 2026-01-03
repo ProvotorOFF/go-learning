@@ -31,6 +31,7 @@ func main() {
 	//Handlers
 	product.NewProductHandler(router, product.Deps{
 		Repo: productRepository,
+		Conf: conf,
 	})
 	auth.NewAuthHandler(router, auth.Deps{
 		Repo:    userRepository,
