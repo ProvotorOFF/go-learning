@@ -25,3 +25,14 @@ func (j *JWT) Create(phone string) (string, error) {
 
 	return s, nil
 }
+
+func (j *JWT) Parse(token string) (bool, string) {
+	t, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
+		return []byte(j.Secret), nil
+	})
+	if err != nil {
+		return false, ""
+	}
+	phone := t.Claims.(jwt.MapClaims)["phone"]
+	return t.Valid, phone.(string)
+}
