@@ -37,6 +37,10 @@ func main() {
 		Repo:    userRepository,
 		Service: authService,
 	})
+	auth.NewAuthHandler(router, auth.Deps{
+		Repo:    userRepository,
+		Service: authService,
+	})
 
 	server := http.Server{
 		Addr:    ":8081",
