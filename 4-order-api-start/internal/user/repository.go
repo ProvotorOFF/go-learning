@@ -27,3 +27,11 @@ func (repo *UserRepository) FindById(id int) (*User, error) {
 
 	return &user, nil
 }
+
+func (repo *UserRepository) FindIdByPhone(phone string) (uint, error) {
+	var user User
+	if err := repo.Database.Where("phone = ? ", phone).First(&user).Error; err != nil {
+		return 0, err
+	}
+	return user.ID, nil
+}

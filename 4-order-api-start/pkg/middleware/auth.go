@@ -11,7 +11,7 @@ import (
 
 type key string
 
-const contextPhoneKey = "contextPhoneKey"
+const ContextPhoneKey = "contextPhoneKey"
 
 func Auth(next http.Handler, config *configs.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +30,7 @@ func Auth(next http.Handler, config *configs.Config) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), contextPhoneKey, phone)
+		ctx := context.WithValue(r.Context(), ContextPhoneKey, phone)
 		req := r.WithContext(ctx)
 
 		next.ServeHTTP(w, req)

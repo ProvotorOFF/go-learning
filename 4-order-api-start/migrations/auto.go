@@ -2,6 +2,7 @@ package main
 
 import (
 	"order-api-start/configs"
+	"order-api-start/internal/order"
 	"order-api-start/internal/product"
 	"order-api-start/internal/session"
 	"order-api-start/internal/user"
@@ -18,7 +19,5 @@ func main() {
 		panic("No connection to database")
 	}
 
-	db.AutoMigrate(&product.Product{})
-	db.AutoMigrate(&user.User{})
-	db.AutoMigrate(&session.Session{})
+	db.AutoMigrate(&product.Product{}, &user.User{}, &session.Session{}, &order.Order{})
 }
