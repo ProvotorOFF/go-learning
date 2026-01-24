@@ -20,7 +20,7 @@ func NewOrderRepository(database *db.Db) *OrderRepository {
 	return &OrderRepository{database}
 }
 
-func (repo *OrderRepository) CreateFromRequest(req *OrderCreateRequest) (*Order, error) {
+func (repo *OrderRepository) CreateFromRequest(req *OrderCreateRequest, id uint) (*Order, error) {
 	var order Order
 
 	err := repo.Database.Transaction(func(tx *gorm.DB) error {
@@ -35,7 +35,7 @@ func (repo *OrderRepository) CreateFromRequest(req *OrderCreateRequest) (*Order,
 		}
 
 		order = Order{
-			UserID:   req.UserID,
+			UserID:   id,
 			Products: products,
 		}
 
@@ -55,8 +55,16 @@ func (repo *OrderRepository) CreateFromRequest(req *OrderCreateRequest) (*Order,
 
 func (repo *OrderRepository) GetById(id uint64) (*Order, error) {
 	var order Order
-	if err := repo.Database.First(&order, "id = ?", id).Error; err != nil {
+	if err := repo.Database.Preload("Products").First(&order, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &order, nil
+}
+
+func (repo *OrderRepository) FindForUser(id uint) ([]Order, error) {
+	var orders []Order
+	if err := repo.Database.Preload("Products").Find(&orders, "user_id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return orders, nil
 }
