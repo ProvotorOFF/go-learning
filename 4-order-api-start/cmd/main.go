@@ -13,6 +13,16 @@ import (
 )
 
 func main() {
+
+	server := http.Server{
+		Addr:    ":8081",
+		Handler: middleware.Logger(App()),
+	}
+
+	server.ListenAndServe()
+}
+
+func App() http.Handler {
 	conf := configs.LoadConfig()
 	router := http.NewServeMux()
 	db, _ := db.NewDb(conf)
@@ -45,10 +55,5 @@ func main() {
 		UserRepo: userRepository,
 	})
 
-	server := http.Server{
-		Addr:    ":8081",
-		Handler: middleware.Logger(router),
-	}
-
-	server.ListenAndServe()
+	return router
 }

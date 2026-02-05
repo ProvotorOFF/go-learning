@@ -13,10 +13,17 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Print("Cannot load .env")
+	env := os.Getenv("APP_ENV")
+
+	envFile := ".env"
+	if env == "testing" {
+		envFile = ".env.testing"
 	}
+
+	if err := godotenv.Load(envFile); err != nil {
+		log.Fatalf("Cannot load %s", envFile)
+	}
+
 	return &Config{
 		DSN:    os.Getenv("DSN"),
 		Secret: os.Getenv("SECRET"),
